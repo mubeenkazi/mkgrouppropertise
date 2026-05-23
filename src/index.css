@@ -1,0 +1,90 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Real estate design system — emerald + gold. All colors HSL. */
+@layer base {
+  :root {
+    --background: 40 33% 98%;
+    --foreground: 160 30% 10%;
+    --card: 0 0% 100%;
+    --card-foreground: 160 30% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 160 30% 10%;
+    --primary: 158 64% 24%;
+    --primary-foreground: 40 33% 98%;
+    --secondary: 40 30% 94%;
+    --secondary-foreground: 160 30% 10%;
+    --muted: 40 20% 94%;
+    --muted-foreground: 160 10% 40%;
+    --accent: 38 75% 55%;
+    --accent-foreground: 160 30% 10%;
+    --destructive: 0 75% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 40 15% 88%;
+    --input: 40 15% 88%;
+    --ring: 158 64% 28%;
+
+    --brand: 158 64% 24%;
+    --brand-foreground: 40 33% 98%;
+    --brand-glow: 158 55% 42%;
+    --gold: 38 80% 55%;
+
+    --gradient-hero: linear-gradient(135deg, hsl(158 64% 20%), hsl(158 55% 38%));
+    --gradient-gold: linear-gradient(135deg, hsl(38 85% 58%), hsl(38 75% 48%));
+    --gradient-overlay: linear-gradient(180deg, hsl(160 40% 8% / 0.1), hsl(160 40% 8% / 0.85));
+    --shadow-elegant: 0 24px 60px -20px hsl(158 64% 20% / 0.3);
+    --shadow-card: 0 4px 20px -4px hsl(160 25% 12% / 0.1);
+    --shadow-glow: 0 0 40px hsl(158 55% 42% / 0.35);
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    --radius: 0.75rem;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 160 30% 6%;
+    --foreground: 40 33% 96%;
+    --card: 160 25% 9%;
+    --card-foreground: 40 33% 96%;
+    --popover: 160 25% 9%;
+    --popover-foreground: 40 33% 96%;
+    --primary: 158 55% 45%;
+    --primary-foreground: 160 30% 6%;
+    --secondary: 160 15% 14%;
+    --secondary-foreground: 40 33% 96%;
+    --muted: 160 15% 14%;
+    --muted-foreground: 160 10% 65%;
+    --accent: 38 75% 55%;
+    --accent-foreground: 160 30% 6%;
+    --destructive: 0 65% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 160 15% 18%;
+    --input: 160 15% 18%;
+    --ring: 158 55% 45%;
+    --brand: 158 55% 45%;
+    --brand-foreground: 160 30% 6%;
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * { @apply border-border; }
+  html { scroll-behavior: smooth; }
+  body { @apply bg-background text-foreground antialiased; }
+}
