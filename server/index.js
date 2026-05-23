@@ -1,4 +1,5 @@
 import "dotenv/config";
+import dns from "node:dns";
 import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
@@ -20,6 +21,8 @@ const PORT = process.env.PORT || 5000;
 const MONGODB_URI = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/mkgrup";
 const JWT_SECRET = process.env.JWT_SECRET || "change-this-secret-in-production";
 const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN || "http://localhost:8080";
+
+dns.setServers(["8.8.8.8", "8.8.4.4"]);
 
 app.use(cors({ origin: CLIENT_ORIGIN, credentials: true }));
 app.use(express.json({ limit: "2mb" }));
@@ -74,6 +77,11 @@ const landSchema = new mongoose.Schema(
     latitude: { type: Number, default: null },
     longitude: { type: Number, default: null },
     nearby_places: { type: [String], default: [] },
+    boundary_left: { type: String, default: null },
+    boundary_right: { type: String, default: null },
+    boundary_front: { type: String, default: null },
+    boundary_back: { type: String, default: null },
+    road_distance: { type: String, default: null },
     featured: { type: Boolean, default: false },
     seller_id: { type: mongoose.Schema.Types.ObjectId, ref: "Seller", default: null },
     video_url: { type: String, default: null },

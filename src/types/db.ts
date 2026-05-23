@@ -22,25 +22,34 @@ export type Land = {
   latitude: number | null;
   longitude: number | null;
   nearby_places: string[] | null;
+  boundary_left: string | null;
+  boundary_right: string | null;
+  boundary_front: string | null;
+  boundary_back: string | null;
+  road_distance: string | null;
   featured: boolean | null;
   seller_id: string | null;
   video_url?: string | null;
   seller?: Seller | null;
 };
 
-export const getYoutubeEmbedUrl = (url: string | null | undefined): string | null => {
+export const getYoutubeVideoId = (url: string | null | undefined): string | null => {
   if (!url) return null;
   try {
     const u = new URL(url);
-    let id: string | null = null;
-    if (u.hostname.includes("youtu.be")) id = u.pathname.slice(1);
-    else if (u.pathname.startsWith("/embed/")) id = u.pathname.split("/")[2];
-    else if (u.pathname.startsWith("/shorts/")) id = u.pathname.split("/")[2];
-    else id = u.searchParams.get("v");
-    return id ? `https://www.youtube.com/embed/${id}` : null;
+    if (u.hostname.includes("youtu.be")) return u.pathname.slice(1) || null;
+    if (u.pathname.startsWith("/embed/")) return u.pathname.split("/")[2] || null;
+    if (u.pathname.startsWith("/shorts/")) return u.pathname.split("/")[2] || null;
+    return u.searchParams.get("v");
   } catch {
     return null;
   }
+};
+
+export const getYoutubeEmbedUrl = (url: string | null | undefined): string | null => {
+  const id = getYoutubeVideoId(url);
+  if (!id) return null;
+  return `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0&modestbranding=1&playsinline=1`;
 };
 
 export type Review = {

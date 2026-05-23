@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
-import { Mail, MapPin, Maximize2, Phone, User as UserIcon } from "lucide-react";
+import { Compass, Mail, MapPin, Maximize2, Phone, PlayCircle, Route, User as UserIcon, Video } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Rating from "@/components/Rating";
@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/context/AuthContext";
-import { Land, Review, Seller, formatPrice, getYoutubeEmbedUrl } from "@/types/db";
+import { Land, Review, Seller, formatPrice, getYoutubeEmbedUrl, getYoutubeVideoId } from "@/types/db";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
 
@@ -23,6 +23,7 @@ const Details = () => {
   const [loading, setLoading] = useState(true);
   const [rating, setRating] = useState(5);
   const [reviewText, setReviewText] = useState("");
+  const [videoOpen, setVideoOpen] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -30,6 +31,7 @@ const Details = () => {
       const l = await api<Land>(`/lands/${id}`, { auth: false }).catch(() => null);
       if (!l) { setLoading(false); return; }
       setLand(l);
+      setVideoOpen(false);
       if (l.seller_id) {
         const s = await api<Seller>(`/sellers/${l.seller_id}`, { auth: false }).catch(() => null);
         setSeller(s);
@@ -70,6 +72,20 @@ const Details = () => {
       ? `https://www.google.com/maps?q=${land.latitude},${land.longitude}&z=14&output=embed`
       : `https://www.google.com/maps?q=${encodeURIComponent(land.location)}&z=13&output=embed`;
 
+  const pricePerSqft = Number(land.price_per_sqft ?? Number(land.price) / Math.max(1, land.square_feet));
+  const plotHighlights = [
+    { icon: MapPin, label: "Total price", value: formatPrice(Number(land.price)) },
+    { icon: Maximize2, label: "Plot area", value: `${land.square_feet.toLocaleString()} sq ft` },
+    { icon: Compass, label: "Per sq ft", value: formatPrice(pricePerSqft) },
+    { icon: Route, label: "Road access", value: land.road_distance || "Ask for details" },
+  ];
+  const boundaryDetails = [
+    { label: "Left side", value: land.boundary_left },
+    { label: "Right side", value: land.boundary_right },
+    { label: "Front side", value: land.boundary_front },
+    { label: "Back side", value: land.boundary_back },
+  ].filter((item) => item.value);
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -80,6 +96,8 @@ const Details = () => {
           <div className="lg:col-span-3 space-y-4">
             {(() => {
               const embedUrl = getYoutubeEmbedUrl(land.video_url);
+              const videoId = getYoutubeVideoId(land.video_url);
+              const videoThumbnail = videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : null;
               if (embedUrl) {
                 return (
                   <div className="grid gap-3 sm:grid-cols-2">
@@ -88,14 +106,44 @@ const Details = () => {
                       alt={land.title}
                       className="aspect-[4/3] w-full rounded-2xl object-cover shadow-[var(--shadow-elegant)]"
                     />
-                    <div className="aspect-[4/3] w-full overflow-hidden rounded-2xl shadow-[var(--shadow-elegant)]">
-                      <iframe
-                        title={`${land.title} video`}
-                        src={embedUrl}
-                        className="h-full w-full"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                      />
+                    <div className="aspect-[4/3] w-full overflow-hidden rounded-2xl border border-border bg-card shadow-[var(--shadow-elegant)]">
+                      {videoOpen ? (
+                        <iframe
+                          title={`${land.title} video`}
+                          src={embedUrl}
+                          className="h-full w-full"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                          referrerPolicy="strict-origin-when-cross-origin"
+                          allowFullScreen
+                        />
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => setVideoOpen(true)}
+                          className="group relative h-full w-full overflow-hidden text-left"
+                          aria-label={`Play ${land.title} video`}
+                        >
+                          <img
+                            src={videoThumbnail || land.image_url || "/placeholder.svg"}
+                            alt=""
+                            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-black/10" />
+                          <div className="absolute left-5 top-5 inline-flex items-center gap-2 rounded-full bg-white/90 px-3 py-1.5 text-xs font-semibold text-foreground shadow-sm">
+                            <Video className="h-4 w-4 text-primary" />
+                            Property video
+                          </div>
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <span className="flex h-16 w-16 items-center justify-center rounded-full bg-white text-primary shadow-[var(--shadow-elegant)] transition group-hover:scale-105">
+                              <PlayCircle className="h-9 w-9" />
+                            </span>
+                          </div>
+                          <div className="absolute bottom-5 left-5 right-5">
+                            <p className="text-lg font-semibold text-white">Watch land overview</p>
+                            <p className="mt-1 text-sm text-white/80">Clean preview with full property details.</p>
+                          </div>
+                        </button>
+                      )}
                     </div>
                   </div>
                 );
@@ -109,10 +157,21 @@ const Details = () => {
               );
             })()}
             {land.gallery && land.gallery.length > 0 && (
-              <div className="grid grid-cols-4 gap-2">
-                {land.gallery.slice(0, 4).map((g, i) => (
-                  <img key={i} src={g} alt="" className="aspect-square rounded-lg object-cover" />
-                ))}
+              <div className="rounded-2xl border border-border bg-card p-4 shadow-[var(--shadow-card)]">
+                <div className="mb-3 flex items-center justify-between">
+                  <h2 className="text-lg font-semibold text-foreground">Product gallery</h2>
+                  <span className="text-sm text-muted-foreground">{Math.min(land.gallery.length, 7)} photos</span>
+                </div>
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                  {land.gallery.slice(0, 7).map((g, i) => (
+                    <img
+                      key={`${g}-${i}`}
+                      src={g}
+                      alt={`${land.title} gallery ${i + 1}`}
+                      className={`w-full rounded-lg object-cover ${i === 0 ? "col-span-2 aspect-[4/3] sm:row-span-2 sm:aspect-auto sm:h-full" : "aspect-square"}`}
+                    />
+                  ))}
+                </div>
               </div>
             )}
           </div>
@@ -125,27 +184,45 @@ const Details = () => {
               </p>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 rounded-xl border border-border bg-card p-5">
-              <div>
-                <p className="text-xs text-muted-foreground">Total price</p>
-                <p className="text-2xl font-bold text-primary">{formatPrice(Number(land.price))}</p>
+            <div className="rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-card)]">
+              <div className="mb-4 flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wider text-primary">Land overview</p>
+                  <h2 className="text-xl font-bold text-foreground">Plot details</h2>
+                </div>
+                <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">Verified info</span>
               </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Square feet</p>
-                <p className="text-2xl font-bold text-foreground flex items-center gap-1">
-                  <Maximize2 className="h-5 w-5" />
-                  {land.square_feet.toLocaleString()}
-                </p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Price per sq ft</p>
-                <p className="text-lg font-semibold text-foreground">
-                  {formatPrice(Number(land.price_per_sqft ?? Number(land.price) / Math.max(1, land.square_feet)))}
-                </p>
+              <div className="grid grid-cols-2 gap-3">
+                {plotHighlights.map(({ icon: Icon, label, value }) => (
+                  <div key={label} className="rounded-xl border border-border bg-background p-4">
+                    <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
+                      <Icon className="h-4 w-4 text-primary" />
+                      {label}
+                    </div>
+                    <p className="mt-2 text-lg font-bold text-foreground">{value}</p>
+                  </div>
+                ))}
               </div>
             </div>
 
             <p className="leading-relaxed text-foreground/80">{land.description}</p>
+
+            {boundaryDetails.length > 0 && (
+              <div className="rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-card)]">
+                <div className="mb-4">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-primary">Surroundings</p>
+                  <h2 className="text-xl font-bold text-foreground">What is around this land?</h2>
+                </div>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {boundaryDetails.map((item) => (
+                    <div key={item.label} className="rounded-xl bg-secondary/60 p-4">
+                      <p className="text-xs font-medium text-muted-foreground">{item.label}</p>
+                      <p className="mt-1 font-semibold text-foreground">{item.value}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {land.nearby_places && land.nearby_places.length > 0 && (
               <div>

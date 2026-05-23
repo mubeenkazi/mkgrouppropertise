@@ -11,7 +11,7 @@ const Footer = () => (
           <span className="text-xl font-bold">MK Group Properties</span>
         </div>
         <p className="mt-3 text-sm text-muted-foreground">
-          Discover prime land and investment opportunities in the most desirable locations worldwide.
+          Discover verified land, plots and investment opportunities across India.
         </p>
       </div>
       <div>
@@ -20,6 +20,7 @@ const Footer = () => (
           <li><Link to="/" className="hover:text-primary">Home</Link></li>
           <li><Link to="/lands" className="hover:text-primary">Lands</Link></li>
           <li><Link to="/contact" className="hover:text-primary">Contact</Link></li>
+          <li><Link to="/terms-and-conditions" className="hover:text-primary">Terms &amp; Conditions</Link></li>
         </ul>
       </div>
       <div>

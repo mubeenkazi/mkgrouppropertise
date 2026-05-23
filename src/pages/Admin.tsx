@@ -20,9 +20,54 @@ import { api } from "@/lib/api";
 const emptyLand = {
   title: "", description: "", price: "", square_feet: "", location: "",
   latitude: "", longitude: "", nearby_places: "", featured: false, seller_id: "",
-  image_url: "", video_url: "",
+  boundary_left: "", boundary_right: "", boundary_front: "", boundary_back: "", road_distance: "",
+  image_url: "", video_url: "", gallery: [] as string[],
 };
 const emptySeller = { name: "", phone: "", email: "", bio: "", rating: "5", photo_url: "" };
+const MAX_IMAGE_SIZE = 400 * 1024;
+const MIN_IMAGE_SIZE = 200 * 1024;
+
+const canvasToBlob = (canvas: HTMLCanvasElement, quality: number) =>
+  new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/webp", quality));
+
+const compressImage = async (file: File) => {
+  if (file.size <= MAX_IMAGE_SIZE && file.type === "image/webp") return file;
+
+  const imageUrl = URL.createObjectURL(file);
+  const image = new Image();
+  image.src = imageUrl;
+  await image.decode();
+  URL.revokeObjectURL(imageUrl);
+
+  const maxSide = 1600;
+  const scale = Math.min(1, maxSide / Math.max(image.width, image.height));
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.max(1, Math.round(image.width * scale));
+  canvas.height = Math.max(1, Math.round(image.height * scale));
+
+  const context = canvas.getContext("2d");
+  if (!context) return file;
+  context.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+  let bestBlob = await canvasToBlob(canvas, 0.86);
+  let low = 0.55;
+  let high = 0.9;
+
+  for (let i = 0; i < 7; i += 1) {
+    const quality = (low + high) / 2;
+    const blob = await canvasToBlob(canvas, quality);
+    if (!blob) continue;
+    bestBlob = blob;
+    if (blob.size > MAX_IMAGE_SIZE) high = quality;
+    else if (blob.size < MIN_IMAGE_SIZE && quality < 0.9) low = quality;
+    else break;
+  }
+
+  if (!bestBlob || bestBlob.size > file.size) return file;
+
+  const filename = file.name.replace(/\.[^.]+$/, "") || "image";
+  return new File([bestBlob], `${filename}.webp`, { type: "image/webp" });
+};
 
 const Admin = () => {
   const { user, isAdmin, loading } = useAuth();
@@ -61,14 +106,15 @@ const Admin = () => {
 
   const uploadImage = async (file: File, bucket: "land-images" | "seller-images") => {
     setUploading(true);
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("bucket", bucket);
     try {
+      const optimizedFile = await compressImage(file);
+      const formData = new FormData();
+      formData.append("file", optimizedFile);
+      formData.append("bucket", bucket);
       const data = await api<{ url: string }>("/uploads", { method: "POST", body: formData });
       return data.url;
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Upload failed");
+      toast.error(error instanceof Error ? error.message : "Image optimize or upload failed");
       return null;
     } finally {
       setUploading(false);
@@ -88,10 +134,16 @@ const Admin = () => {
       latitude: l.latitude?.toString() ?? "",
       longitude: l.longitude?.toString() ?? "",
       nearby_places: (l.nearby_places ?? []).join(", "),
+      boundary_left: l.boundary_left ?? "",
+      boundary_right: l.boundary_right ?? "",
+      boundary_front: l.boundary_front ?? "",
+      boundary_back: l.boundary_back ?? "",
+      road_distance: l.road_distance ?? "",
       featured: !!l.featured,
       seller_id: l.seller_id ?? "",
       image_url: l.image_url ?? "",
       video_url: l.video_url ?? "",
+      gallery: l.gallery ?? [],
     });
     setLandOpen(true);
   };
@@ -110,9 +162,15 @@ const Admin = () => {
       latitude: landForm.latitude ? Number(landForm.latitude) : null,
       longitude: landForm.longitude ? Number(landForm.longitude) : null,
       nearby_places: landForm.nearby_places.split(",").map((s) => s.trim()).filter(Boolean),
+      boundary_left: landForm.boundary_left || null,
+      boundary_right: landForm.boundary_right || null,
+      boundary_front: landForm.boundary_front || null,
+      boundary_back: landForm.boundary_back || null,
+      road_distance: landForm.road_distance || null,
       featured: landForm.featured,
       seller_id: landForm.seller_id || null,
       image_url: landForm.image_url || null,
+      gallery: landForm.gallery,
       video_url: landForm.video_url || null,
     };
     try {
@@ -220,7 +278,7 @@ const Admin = () => {
                         <Textarea rows={3} value={landForm.description} onChange={(e) => setLandForm({ ...landForm, description: e.target.value })} />
                       </div>
                       <div>
-                        <Label>Price (USD) *</Label>
+                        <Label>Price (INR) *</Label>
                         <Input type="number" value={landForm.price} onChange={(e) => setLandForm({ ...landForm, price: e.target.value })} />
                       </div>
                       <div>
@@ -243,6 +301,32 @@ const Admin = () => {
                         <Label>Nearby places (comma-separated)</Label>
                         <Input value={landForm.nearby_places} onChange={(e) => setLandForm({ ...landForm, nearby_places: e.target.value })} placeholder="School, Market, Highway" />
                       </div>
+                      <div className="sm:col-span-2 rounded-xl border border-border bg-secondary/40 p-4">
+                        <h3 className="text-sm font-semibold text-foreground">Plot surroundings & access</h3>
+                        <p className="mt-1 text-xs text-muted-foreground">Add what is around the land so buyers understand the exact plot position.</p>
+                        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                          <div>
+                            <Label>Left side</Label>
+                            <Input value={landForm.boundary_left} onChange={(e) => setLandForm({ ...landForm, boundary_left: e.target.value })} placeholder="Neighbor plot, open land, house" />
+                          </div>
+                          <div>
+                            <Label>Right side</Label>
+                            <Input value={landForm.boundary_right} onChange={(e) => setLandForm({ ...landForm, boundary_right: e.target.value })} placeholder="Road, farm, building" />
+                          </div>
+                          <div>
+                            <Label>Front side</Label>
+                            <Input value={landForm.boundary_front} onChange={(e) => setLandForm({ ...landForm, boundary_front: e.target.value })} placeholder="Main road, open view, entrance" />
+                          </div>
+                          <div>
+                            <Label>Back side</Label>
+                            <Input value={landForm.boundary_back} onChange={(e) => setLandForm({ ...landForm, boundary_back: e.target.value })} placeholder="Hill, plot, village road" />
+                          </div>
+                          <div className="sm:col-span-2">
+                            <Label>Road distance</Label>
+                            <Input value={landForm.road_distance} onChange={(e) => setLandForm({ ...landForm, road_distance: e.target.value })} placeholder="Example: 100 meter from main road" />
+                          </div>
+                        </div>
+                      </div>
                       <div className="sm:col-span-2">
                         <Label>Seller</Label>
                         <select
@@ -264,6 +348,61 @@ const Admin = () => {
                               if (url) setLandForm({ ...landForm, image_url: url });
                             }} />
                           {landForm.image_url && <img src={landForm.image_url} alt="" className="h-12 w-16 rounded object-cover" />}
+                        </div>
+                      </div>
+                      <div className="sm:col-span-2">
+                        <Label>Product gallery images</Label>
+                        <div className="space-y-3">
+                          <Input
+                            type="file"
+                            accept="image/*"
+                            multiple
+                            disabled={uploading || landForm.gallery.length >= 7}
+                            onChange={async (e) => {
+                              const selected = Array.from(e.target.files ?? []);
+                              if (selected.length === 0) return;
+                              const remainingSlots = 7 - landForm.gallery.length;
+                              const filesToUpload = selected.slice(0, remainingSlots);
+                              if (selected.length > remainingSlots) {
+                                toast.error("You can add up to 7 gallery images for one product");
+                              }
+                              const uploaded: string[] = [];
+                              for (const file of filesToUpload) {
+                                const url = await uploadImage(file, "land-images");
+                                if (url) uploaded.push(url);
+                              }
+                              if (uploaded.length > 0) {
+                                setLandForm((current) => ({
+                                  ...current,
+                                  gallery: [...current.gallery, ...uploaded].slice(0, 7),
+                                }));
+                              }
+                              e.target.value = "";
+                            }}
+                          />
+                          <p className="text-xs text-muted-foreground">
+                            Add 5 to 7 images for a professional product detail gallery. {landForm.gallery.length}/7 uploaded.
+                          </p>
+                          {landForm.gallery.length > 0 && (
+                            <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
+                              {landForm.gallery.map((url, index) => (
+                                <div key={`${url}-${index}`} className="group relative overflow-hidden rounded-lg border border-border bg-secondary">
+                                  <img src={url} alt="" className="aspect-square w-full object-cover" />
+                                  <button
+                                    type="button"
+                                    onClick={() => setLandForm({
+                                      ...landForm,
+                                      gallery: landForm.gallery.filter((_, i) => i !== index),
+                                    })}
+                                    className="absolute right-1 top-1 flex h-7 w-7 items-center justify-center rounded-full bg-background/90 text-destructive opacity-0 shadow-sm transition group-hover:opacity-100"
+                                    aria-label="Remove gallery image"
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </button>
+                                </div>
+                              ))}
+                            </div>
+                          )}
                         </div>
                       </div>
                       <div className="sm:col-span-2">

@@ -4,4 +4,4 @@ Disallow: /admin
 Disallow: /auth
 Disallow: /reset-password
 
-Sitemap: https://mkgroup-properties.com/sitemap.xml
+Sitemap: https://mkgroupproperties.in/sitemap.xml

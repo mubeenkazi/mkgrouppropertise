@@ -60,7 +60,7 @@ const SearchBar = ({
         <PopoverContent className="w-80 space-y-4" align="end">
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label className="text-xs">Min price ($)</Label>
+              <Label className="text-xs">Min price (₹)</Label>
               <Input
                 type="number"
                 min={0}
@@ -69,7 +69,7 @@ const SearchBar = ({
               />
             </div>
             <div>
-              <Label className="text-xs">Max price ($)</Label>
+              <Label className="text-xs">Max price (₹)</Label>
               <Input
                 type="number"
                 min={0}
