@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
-import { Compass, Mail, MapPin, Maximize2, Phone, PlayCircle, Route, User as UserIcon, Video } from "lucide-react";
+import { Clipboard, Compass, Mail, MapPin, Maximize2, MessageCircle, Phone, PlayCircle, Route, Send, User as UserIcon, Video } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Rating from "@/components/Rating";
@@ -12,6 +12,27 @@ import { useAuth } from "@/context/AuthContext";
 import { Land, Review, Seller, formatPrice, getYoutubeEmbedUrl, getYoutubeVideoId } from "@/types/db";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
+
+const DEFAULT_CONTACT_PHONE = "+919921552486";
+const DEFAULT_CONTACT_EMAIL = "Mubeenkazi.mk@gmail.com";
+const PUBLIC_SITE_URL = "https://mkgroupproperties.in";
+
+const getAbsoluteUrl = (url: string | null | undefined) => {
+  if (!url) return "";
+  try {
+    const origin = window.location.hostname.includes("localhost") || window.location.hostname.includes("127.0.0.1")
+      ? PUBLIC_SITE_URL
+      : window.location.origin;
+    return new URL(url, origin).href;
+  } catch {
+    return url;
+  }
+};
+
+const getWhatsappNumber = (phone: string) => {
+  const digits = phone.replace(/\D/g, "");
+  return digits.length === 10 ? `91${digits}` : digits;
+};
 
 const Details = () => {
   const { id } = useParams();
@@ -85,6 +106,43 @@ const Details = () => {
     { label: "Front side", value: land.boundary_front },
     { label: "Back side", value: land.boundary_back },
   ].filter((item) => item.value);
+  const contactPhone = seller?.phone || DEFAULT_CONTACT_PHONE;
+  const contactEmail = seller?.email || DEFAULT_CONTACT_EMAIL;
+  const pageUrl = getAbsoluteUrl(`/lands/${land.id}`);
+  const imageUrl = getAbsoluteUrl(land.image_url || land.gallery?.[0]);
+  const productMessage = [
+    "Hello MK Group Properties,",
+    "",
+    "I am interested in this land/property.",
+    "",
+    "Property Details:",
+    `- Title: ${land.title}`,
+    `- Location: ${land.location}`,
+    `- Total Price: ${formatPrice(Number(land.price))}`,
+    `- Plot Area: ${land.square_feet.toLocaleString()} sq ft`,
+    `- Price per sq ft: ${formatPrice(pricePerSqft)}`,
+    land.road_distance ? `- Road Access: ${land.road_distance}` : "",
+    "",
+    imageUrl ? `Property Image Link:` : "",
+    imageUrl,
+    "",
+    `Property Details Link:`,
+    pageUrl,
+    "",
+    "Please contact me.",
+  ].filter(Boolean).join("\n");
+  const whatsappUrl = `https://wa.me/${getWhatsappNumber(contactPhone)}?text=${encodeURIComponent(productMessage)}`;
+  const emailSubject = `Land enquiry: ${land.title}`;
+  const emailUrl = `mailto:${contactEmail}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(productMessage)}`;
+  const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(contactEmail)}&su=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(productMessage)}`;
+  const copyEmailMessage = async () => {
+    try {
+      await navigator.clipboard.writeText(`To: ${contactEmail}\nSubject: ${emailSubject}\n\n${productMessage}`);
+      toast.success("Email details copied");
+    } catch {
+      toast.error("Could not copy email details");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -234,6 +292,36 @@ const Details = () => {
                 </div>
               </div>
             )}
+
+            <div className="rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-card)]">
+              <div className="mb-4">
+                <p className="text-xs font-semibold uppercase tracking-wider text-primary">Contact for this property</p>
+                <h2 className="text-xl font-bold text-foreground">Send product details instantly</h2>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  WhatsApp or email us with this land's image, price, location and page link already included.
+                </p>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <Button variant="brand" asChild>
+                  <a href={whatsappUrl} target="_blank" rel="noreferrer">
+                    <MessageCircle className="mr-2 h-4 w-4" /> WhatsApp
+                  </a>
+                </Button>
+                <Button variant="outline" asChild>
+                  <a href={gmailUrl} target="_blank" rel="noreferrer">
+                    <Send className="mr-2 h-4 w-4" /> Gmail
+                  </a>
+                </Button>
+                <Button variant="outline" asChild>
+                  <a href={emailUrl}>
+                    <Mail className="mr-2 h-4 w-4" /> Mail app
+                  </a>
+                </Button>
+                <Button type="button" variant="outline" onClick={copyEmailMessage}>
+                  <Clipboard className="mr-2 h-4 w-4" /> Copy email
+                </Button>
+              </div>
+            </div>
 
             {seller && (
               <div className="rounded-xl border border-border bg-card p-6 shadow-[var(--shadow-card)]">

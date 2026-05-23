@@ -2,8 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import Navbar from "@/components/Navbar";
+import PasswordInput from "@/components/PasswordInput";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/context/AuthContext";
 
@@ -36,11 +36,11 @@ const ResetPassword = () => {
           <form onSubmit={onSubmit} className="mt-6 space-y-4">
             <div>
               <Label htmlFor="np">New password</Label>
-              <Input id="np" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+              <PasswordInput id="np" value={password} onChange={(e) => setPassword(e.target.value)} />
             </div>
             <div>
               <Label htmlFor="cp">Confirm password</Label>
-              <Input id="cp" type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)} />
+              <PasswordInput id="cp" value={confirm} onChange={(e) => setConfirm(e.target.value)} />
             </div>
             <Button type="submit" variant="brand" className="w-full" disabled={busy}>Update password</Button>
           </form>

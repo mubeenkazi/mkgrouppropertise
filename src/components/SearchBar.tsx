@@ -45,7 +45,7 @@ const SearchBar = ({
       <div className="relative flex-1">
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
-          placeholder="Search by location..."
+          placeholder="Search city, area or nearby place..."
           value={filters.location}
           onChange={(e) => onChange({ ...filters, location: e.target.value })}
           className="border-0 pl-10 focus-visible:ring-1"

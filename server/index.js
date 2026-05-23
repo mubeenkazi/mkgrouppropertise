@@ -137,6 +137,22 @@ const publicUser = (user) => ({
 });
 
 const asyncHandler = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
+const escapeRegex = (value) => String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const getUploadPath = (url) => {
+  if (!url || typeof url !== "string" || !url.startsWith("/uploads/")) return null;
+  const filename = path.basename(url);
+  const resolved = path.resolve(uploadDir, filename);
+  return resolved.startsWith(uploadDir) ? resolved : null;
+};
+const deleteUploadedFile = async (url) => {
+  const filePath = getUploadPath(url);
+  if (!filePath) return;
+  await fs.promises.rm(filePath, { force: true });
+};
+const deleteUploadedFiles = async (urls) => {
+  await Promise.all([...new Set(urls.filter(Boolean))].map((url) => deleteUploadedFile(url)));
+};
+const landUploadUrls = (land) => [land?.image_url, ...(land?.gallery ?? [])];
 
 const requireAuth = asyncHandler(async (req, res, next) => {
   const header = req.headers.authorization || "";
@@ -217,7 +233,14 @@ app.post("/api/auth/update-password", requireAuth, asyncHandler(async (req, res)
 
 app.get("/api/lands", asyncHandler(async (req, res) => {
   const filter = {};
-  if (req.query.location) filter.location = { $regex: String(req.query.location), $options: "i" };
+  if (req.query.location) {
+    const location = escapeRegex(String(req.query.location).trim());
+    filter.$or = [
+      { location: { $regex: location, $options: "i" } },
+      { title: { $regex: location, $options: "i" } },
+      { nearby_places: { $elemMatch: { $regex: location, $options: "i" } } },
+    ];
+  }
   if (req.query.minPrice || req.query.maxPrice) filter.price = {};
   if (req.query.minPrice) filter.price.$gte = Number(req.query.minPrice);
   if (req.query.maxPrice) filter.price.$lte = Number(req.query.maxPrice);
@@ -241,13 +264,19 @@ app.get("/api/lands/:id", asyncHandler(async (req, res) => {
 }));
 
 app.put("/api/lands/:id", requireAuth, requireAdmin, asyncHandler(async (req, res) => {
+  const current = await Land.findById(req.params.id);
+  if (!current) return res.status(404).json({ message: "Land not found" });
   const land = await Land.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
   if (!land) return res.status(404).json({ message: "Land not found" });
+  const nextUrls = new Set(landUploadUrls(land));
+  const removedUrls = landUploadUrls(current).filter((url) => url && !nextUrls.has(url));
+  await deleteUploadedFiles(removedUrls);
   res.json(land);
 }));
 
 app.delete("/api/lands/:id", requireAuth, requireAdmin, asyncHandler(async (req, res) => {
-  await Land.findByIdAndDelete(req.params.id);
+  const land = await Land.findByIdAndDelete(req.params.id);
+  if (land) await deleteUploadedFiles(landUploadUrls(land));
   await Review.deleteMany({ land_id: req.params.id });
   res.status(204).end();
 }));
@@ -267,13 +296,19 @@ app.get("/api/sellers/:id", asyncHandler(async (req, res) => {
 }));
 
 app.put("/api/sellers/:id", requireAuth, requireAdmin, asyncHandler(async (req, res) => {
+  const current = await Seller.findById(req.params.id);
+  if (!current) return res.status(404).json({ message: "Seller not found" });
   const seller = await Seller.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
   if (!seller) return res.status(404).json({ message: "Seller not found" });
+  if (current.photo_url && current.photo_url !== seller.photo_url) {
+    await deleteUploadedFile(current.photo_url);
+  }
   res.json(seller);
 }));
 
 app.delete("/api/sellers/:id", requireAuth, requireAdmin, asyncHandler(async (req, res) => {
-  await Seller.findByIdAndDelete(req.params.id);
+  const seller = await Seller.findByIdAndDelete(req.params.id);
+  if (seller?.photo_url) await deleteUploadedFile(seller.photo_url);
   await Land.updateMany({ seller_id: req.params.id }, { seller_id: null });
   res.status(204).end();
 }));
@@ -321,8 +356,10 @@ if (fs.existsSync(distDir)) {
 
 app.use((err, _req, res, _next) => {
   console.error(err);
-  const status = err.name === "ValidationError" || err.name === "CastError" ? 400 : 500;
-  res.status(status).json({ message: err.message || "Server error" });
+  const isClientError = err.name === "ValidationError" || err.name === "CastError";
+  const status = isClientError ? 400 : 500;
+  const message = isClientError ? "Please check the details and try again." : "Something went wrong. Please try again later.";
+  res.status(status).json({ message });
 });
 
 mongoose

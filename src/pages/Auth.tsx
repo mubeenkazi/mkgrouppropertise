@@ -3,6 +3,7 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { z } from "zod";
 import { toast } from "sonner";
 import Navbar from "@/components/Navbar";
+import PasswordInput from "@/components/PasswordInput";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -94,7 +95,7 @@ const Auth = () => {
                 </div>
                 <div>
                   <Label htmlFor="l-pass">Password</Label>
-                  <Input id="l-pass" type="password" value={login.password} onChange={(e) => setLogin({ ...login, password: e.target.value })} />
+                  <PasswordInput id="l-pass" value={login.password} onChange={(e) => setLogin({ ...login, password: e.target.value })} />
                 </div>
                 <div className="text-right">
                   <button type="button" onClick={() => { setForgotEmail(login.email); setForgotOpen(true); }} className="text-sm text-primary hover:underline">
@@ -131,7 +132,7 @@ const Auth = () => {
                 </div>
                 <div>
                   <Label htmlFor="s-pass">Password</Label>
-                  <Input id="s-pass" type="password" value={signup.password} onChange={(e) => setSignup({ ...signup, password: e.target.value })} />
+                  <PasswordInput id="s-pass" value={signup.password} onChange={(e) => setSignup({ ...signup, password: e.target.value })} />
                   <p className="mt-1 text-xs text-muted-foreground">At least 8 characters.</p>
                 </div>
                 <Button type="submit" variant="brand" className="w-full" disabled={busy}>Create account</Button>

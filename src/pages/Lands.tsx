@@ -46,7 +46,7 @@ const Lands = () => {
       <section className="container py-10">
         <header className="mb-6">
           <h1 className="text-4xl font-bold text-foreground">Lands &amp; Properties</h1>
-          <p className="mt-2 text-muted-foreground">Browse all available listings. Use filters to narrow your search.</p>
+          <p className="mt-2 text-muted-foreground">Search by city, area, nearby place, price or plot size to find the right land.</p>
         </header>
         <SearchBar filters={filters} onChange={setFilters} onSubmit={onSubmit} />
 
