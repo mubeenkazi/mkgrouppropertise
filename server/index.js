@@ -184,17 +184,12 @@ const requireAdmin = (req, res, next) => {
 };
 
 const upload = multer({
-  storage: multer.diskStorage({
-    destination: (_req, _file, cb) => cb(null, uploadDir),
-    filename: (_req, file, cb) => {
-      const safeName = file.originalname.replace(/[^a-zA-Z0-9._-]/g, "-");
-      cb(null, `${Date.now()}-${safeName}`);
-    },
-  }),
+  storage: multer.memoryStorage(),
   fileFilter: (_req, file, cb) => {
-    cb(null, file.mimetype.startsWith("image/"));
+    if (!file.mimetype.startsWith("image/")) return cb(new Error("Please upload an image file"));
+    cb(null, true);
   },
-  limits: { fileSize: 5 * 1024 * 1024 },
+  limits: { fileSize: 8 * 1024 * 1024 },
 });
 
 app.get("/api/health", (_req, res) => res.json({ ok: true }));
@@ -363,17 +358,18 @@ app.post("/api/contact-messages", requireAuth, asyncHandler(async (req, res) => 
 
 app.post("/api/uploads", requireAuth, requireAdmin, upload.single("file"), asyncHandler(async (req, res) => {
   if (!req.file) return res.status(400).json({ message: "Image file is required" });
+  const safeName = req.file.originalname.replace(/[^a-zA-Z0-9._-]/g, "-");
   if (hasBlobStorage) {
-    const safeName = req.file.originalname.replace(/[^a-zA-Z0-9._-]/g, "-");
-    const fileBuffer = await fs.promises.readFile(req.file.path);
-    const blob = await put(`uploads/${Date.now()}-${safeName}`, fileBuffer, {
+    const blob = await put(`uploads/${Date.now()}-${safeName}`, req.file.buffer, {
       access: "public",
       contentType: req.file.mimetype,
+      addRandomSuffix: true,
     });
-    await fs.promises.rm(req.file.path, { force: true });
     return res.status(201).json({ url: blob.url });
   }
-  res.status(201).json({ url: `/uploads/${req.file.filename}` });
+  const filename = `${Date.now()}-${safeName}`;
+  await fs.promises.writeFile(path.join(uploadDir, filename), req.file.buffer);
+  res.status(201).json({ url: `/uploads/${filename}` });
 }));
 
 const distDir = path.join(rootDir, "dist");
@@ -384,7 +380,11 @@ if (fs.existsSync(distDir)) {
 
 app.use((err, _req, res, _next) => {
   console.error(err);
-  const isClientError = err.name === "ValidationError" || err.name === "CastError";
+  if (err instanceof multer.MulterError) {
+    const message = err.code === "LIMIT_FILE_SIZE" ? "Image must be 8MB or smaller" : "Image upload failed";
+    return res.status(400).json({ message });
+  }
+  const isClientError = err.name === "ValidationError" || err.name === "CastError" || err.message === "Please upload an image file";
   const status = isClientError ? 400 : 500;
   const message = isClientError ? "Please check the details and try again." : "Something went wrong. Please try again later.";
   res.status(status).json({ message });
