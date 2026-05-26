@@ -33,7 +33,7 @@ app.use(["/uploads", "/api/uploads"], express.static(uploadDir));
 let dbConnection;
 const connectDb = () => {
   if (mongoose.connection.readyState === 1) return Promise.resolve();
-  if (!dbConnection) dbConnection = mongoose.connect(MONGODB_URI);
+  if (!dbConnection) dbConnection = mongoose.connect(MONGODB_URI, { serverSelectionTimeoutMS: 10000 });
   return dbConnection;
 };
 
