@@ -14,6 +14,7 @@ import ResetPassword from "./pages/ResetPassword";
 import Admin from "./pages/Admin";
 import Terms from "./pages/Terms";
 import NotFound from "./pages/NotFound";
+import LocationLanding from "./pages/LocationLanding";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +29,7 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/lands" element={<Lands />} />
+              <Route path="/land-for-sale-in-:slug" element={<LocationLanding />} />
               <Route path="/lands/:id" element={<Details />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/auth" element={<Auth />} />

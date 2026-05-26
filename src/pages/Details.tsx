@@ -12,6 +12,7 @@ import { useAuth } from "@/context/AuthContext";
 import { Land, Review, Seller, formatPrice, getYoutubeEmbedUrl, getYoutubeVideoId } from "@/types/db";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
+import Seo from "@/lib/seo";
 
 const DEFAULT_CONTACT_PHONE = "+919921552486";
 const DEFAULT_CONTACT_EMAIL = "Mubeenkazi.mk@gmail.com";
@@ -133,6 +134,12 @@ const Details = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Seo
+        title={`${land.title} in ${land.location} | ${formatPrice(Number(land.price))} | MK Group Properties`}
+        description={`${land.title} for sale in ${land.location}. Plot area ${land.square_feet.toLocaleString()} sq ft, price ${formatPrice(Number(land.price))}. Contact MK Group Properties for details.`}
+        canonicalPath={`/lands/${land.id}`}
+        keywords={`${land.title}, land for sale in ${land.location}, plot for sale ${land.location}, MK Group Properties`}
+      />
       <Navbar />
       <article className="container py-10">
         <Button variant="ghost" onClick={() => navigate(-1)} className="mb-4">← Back</Button>

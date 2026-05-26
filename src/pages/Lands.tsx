@@ -6,6 +6,7 @@ import PropertyCard from "@/components/PropertyCard";
 import SearchBar, { SearchFilters } from "@/components/SearchBar";
 import { Land } from "@/types/db";
 import { api } from "@/lib/api";
+import Seo from "@/lib/seo";
 
 const Lands = () => {
   const [params, setParams] = useSearchParams();
@@ -42,6 +43,12 @@ const Lands = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Seo
+        title="Browse Verified Land & Plots for Sale in India | MK Group Properties"
+        description="Search verified land, residential plots, NA plots, farmhouse land and investment properties by city, price and plot size with MK Group Properties."
+        canonicalPath="/lands"
+        keywords="browse land for sale India, verified plots India, residential plots, NA plots, farmhouse land, investment land"
+      />
       <Navbar />
       <section className="container py-10">
         <header className="mb-6">

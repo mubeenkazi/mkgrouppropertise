@@ -2,21 +2,14 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://mkgroupproperties.in/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
   <url><loc>https://mkgroupproperties.in/lands</loc><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://mkgroupproperties.in/lands?location=Mumbai</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://mkgroupproperties.in/lands?location=Pune</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://mkgroupproperties.in/lands?location=Goa</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://mkgroupproperties.in/lands?location=Dapoli</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://mkgroupproperties.in/lands?location=Thane</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://mkgroupproperties.in/lands?location=Navi%20Mumbai</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://mkgroupproperties.in/lands?location=Bengaluru</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://mkgroupproperties.in/lands?location=Hyderabad</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://mkgroupproperties.in/lands?location=Delhi%20NCR</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://mkgroupproperties.in/lands?location=Chennai</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://mkgroupproperties.in/lands?location=Ahmedabad</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://mkgroupproperties.in/lands?location=Nagpur</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://mkgroupproperties.in/lands?location=Nashik</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://mkgroupproperties.in/lands?location=Kolhapur</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://mkgroupproperties.in/lands?location=Ratnagiri</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://mkgroupproperties.in/land-for-sale-in-mumbai</loc><changefreq>weekly</changefreq><priority>0.95</priority></url>
+  <url><loc>https://mkgroupproperties.in/land-for-sale-in-pune</loc><changefreq>weekly</changefreq><priority>0.95</priority></url>
+  <url><loc>https://mkgroupproperties.in/land-for-sale-in-dapoli</loc><changefreq>weekly</changefreq><priority>0.95</priority></url>
+  <url><loc>https://mkgroupproperties.in/land-for-sale-in-goa</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://mkgroupproperties.in/land-for-sale-in-navi-mumbai</loc><changefreq>weekly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://mkgroupproperties.in/land-for-sale-in-thane</loc><changefreq>weekly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://mkgroupproperties.in/land-for-sale-in-ratnagiri</loc><changefreq>weekly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://mkgroupproperties.in/land-for-sale-in-nagpur</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://mkgroupproperties.in/contact</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://mkgroupproperties.in/terms-and-conditions</loc><changefreq>yearly</changefreq><priority>0.5</priority></url>
 </urlset>

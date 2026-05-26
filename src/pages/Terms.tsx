@@ -1,5 +1,6 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import Seo from "@/lib/seo";
 
 const sections = [
   {
@@ -66,6 +67,11 @@ const sections = [
 
 const Terms = () => (
   <div className="min-h-screen bg-background">
+    <Seo
+      title="Terms and Conditions | MK Group Properties"
+      description="Read the terms and conditions for using MK Group Properties land listing, enquiry and property guidance services."
+      canonicalPath="/terms-and-conditions"
+    />
     <Navbar />
     <main className="container py-12">
       <div className="mx-auto max-w-4xl">

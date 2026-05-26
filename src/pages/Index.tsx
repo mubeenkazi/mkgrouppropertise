@@ -12,6 +12,8 @@ import heroImg from "@/assets/hero.jpg";
 import whyBuy from "@/assets/why-buy.jpg";
 import { useNavigate } from "react-router-dom";
 import { api } from "@/lib/api";
+import Seo from "@/lib/seo";
+import { locationSeo } from "@/data/locationSeo";
 
 const reviewSamples = [
   { name: "Sarah Mitchell", rating: 5, text: "Smooth process from browsing to purchase. The team was helpful at every step.", avatar: "https://i.pravatar.cc/100?img=47" },
@@ -40,17 +42,6 @@ const services = [
     title: "Buyer & Seller Connection",
     desc: "We connect genuine buyers with trusted sellers and keep the process simple, transparent, and respectful from first call to final discussion.",
   },
-];
-
-const indiaLocations = [
-  { city: "Mumbai", desc: "Residential and commercial plots across Mumbai, Navi Mumbai, Thane and MMR growth corridors." },
-  { city: "Pune", desc: "NA plots, investment land and farmhouse land near IT hubs, ring road areas and expressway access." },
-  { city: "Goa", desc: "Beachside, village and hinterland land options for villas, resorts and lifestyle investments." },
-  { city: "Dapoli", desc: "Coastal land, farmhouse plots and long-term investment properties in Konkan Maharashtra." },
-  { city: "Bengaluru", desc: "Land opportunities near expanding residential, industrial and technology development belts." },
-  { city: "Hyderabad", desc: "Investment plots and growth-area land near infrastructure, business zones and outer-ring corridors." },
-  { city: "Delhi NCR", desc: "Plots and land opportunities around NCR expansion zones, highways and planned development areas." },
-  { city: "Chennai", desc: "Residential plots and investment land near industrial corridors, ports and growing suburbs." },
 ];
 
 const propertyTypes = [
@@ -85,6 +76,12 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Seo
+        title="Land for Sale in India | Buy Verified Plots & Investment Land | MK Group Properties"
+        description="Buy verified land, plots, NA plots, farmhouse land, coastal land and investment properties across India with MK Group Properties."
+        canonicalPath="/"
+        keywords="land for sale in India, buy land in India, plots for sale India, NA plots Maharashtra, farmhouse land India, coastal land Konkan, investment land India"
+      />
       <Navbar />
 
       {/* HERO */}
@@ -151,14 +148,14 @@ const Index = () => {
           </p>
         </div>
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-          {indiaLocations.map((c) => (
+          {locationSeo.slice(0, 8).map((c) => (
             <Link
               key={c.city}
-              to={`/lands?location=${c.city}`}
+              to={`/land-for-sale-in-${c.slug}`}
               className="group rounded-xl border border-border bg-card p-6 shadow-[var(--shadow-card)] transition hover:border-primary hover:shadow-[var(--shadow-elegant)]"
             >
               <h3 className="text-xl font-bold text-foreground group-hover:text-primary">Land for Sale in {c.city}</h3>
-              <p className="mt-2 text-sm text-muted-foreground">{c.desc}</p>
+              <p className="mt-2 text-sm text-muted-foreground">{c.intro}</p>
               <span className="mt-4 inline-flex items-center text-sm font-semibold text-primary">
                 View {c.city} plots <ArrowRight className="ml-1 h-4 w-4" />
               </span>

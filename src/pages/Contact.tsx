@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/context/AuthContext";
 import { api } from "@/lib/api";
+import Seo from "@/lib/seo";
 
 const schema = z.object({
   name: z.string().trim().min(1, "Name is required").max(100),
@@ -61,6 +62,11 @@ const Contact = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Seo
+        title="Contact MK Group Properties | Land & Plot Enquiries in India"
+        description="Contact MK Group Properties for land, plot, farmhouse land and investment property enquiries across Maharashtra, Goa and India."
+        canonicalPath="/contact"
+      />
       <Navbar />
       <section className="container py-12">
         <div className="mx-auto max-w-2xl text-center">
