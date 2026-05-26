@@ -6,14 +6,15 @@ import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import multer from "multer";
+import { del, put } from "@vercel/blob";
 import path from "path";
 import fs from "fs";
-import { fileURLToPath } from "url";
+import { fileURLToPath, pathToFileURL } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const rootDir = path.resolve(__dirname, "..");
-const uploadDir = path.join(rootDir, "uploads");
+const uploadDir = process.env.VERCEL ? path.join("/tmp", "uploads") : path.join(rootDir, "uploads");
 fs.mkdirSync(uploadDir, { recursive: true });
 
 const app = express();
@@ -21,12 +22,20 @@ const PORT = process.env.PORT || 5000;
 const MONGODB_URI = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/mkgrup";
 const JWT_SECRET = process.env.JWT_SECRET || "change-this-secret-in-production";
 const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN || "http://localhost:8080";
+const hasBlobStorage = Boolean(process.env.BLOB_READ_WRITE_TOKEN);
 
 dns.setServers(["8.8.8.8", "8.8.4.4"]);
 
 app.use(cors({ origin: CLIENT_ORIGIN, credentials: true }));
 app.use(express.json({ limit: "2mb" }));
-app.use("/uploads", express.static(uploadDir));
+app.use(["/uploads", "/api/uploads"], express.static(uploadDir));
+
+let dbConnection;
+const connectDb = () => {
+  if (mongoose.connection.readyState === 1) return Promise.resolve();
+  if (!dbConnection) dbConnection = mongoose.connect(MONGODB_URI);
+  return dbConnection;
+};
 
 const commonSchemaOptions = {
   timestamps: { createdAt: "created_at", updatedAt: "updated_at" },
@@ -145,6 +154,10 @@ const getUploadPath = (url) => {
   return resolved.startsWith(uploadDir) ? resolved : null;
 };
 const deleteUploadedFile = async (url) => {
+  if (hasBlobStorage && typeof url === "string" && url.includes(".blob.vercel-storage.com/")) {
+    await del(url);
+    return;
+  }
   const filePath = getUploadPath(url);
   if (!filePath) return;
   await fs.promises.rm(filePath, { force: true });
@@ -185,6 +198,11 @@ const upload = multer({
 });
 
 app.get("/api/health", (_req, res) => res.json({ ok: true }));
+
+app.use("/api", asyncHandler(async (_req, _res, next) => {
+  await connectDb();
+  next();
+}));
 
 app.get("/api/auth/me", requireAuth, (req, res) => {
   res.json({ user: publicUser(req.user), isAdmin: req.user.role === "admin" });
@@ -343,10 +361,20 @@ app.post("/api/contact-messages", requireAuth, asyncHandler(async (req, res) => 
   res.status(201).json(await ContactMessage.create({ user_id: req.user.id, name, email, message }));
 }));
 
-app.post("/api/uploads", requireAuth, requireAdmin, upload.single("file"), (req, res) => {
+app.post("/api/uploads", requireAuth, requireAdmin, upload.single("file"), asyncHandler(async (req, res) => {
   if (!req.file) return res.status(400).json({ message: "Image file is required" });
+  if (hasBlobStorage) {
+    const safeName = req.file.originalname.replace(/[^a-zA-Z0-9._-]/g, "-");
+    const fileBuffer = await fs.promises.readFile(req.file.path);
+    const blob = await put(`uploads/${Date.now()}-${safeName}`, fileBuffer, {
+      access: "public",
+      contentType: req.file.mimetype,
+    });
+    await fs.promises.rm(req.file.path, { force: true });
+    return res.status(201).json({ url: blob.url });
+  }
   res.status(201).json({ url: `/uploads/${req.file.filename}` });
-});
+}));
 
 const distDir = path.join(rootDir, "dist");
 if (fs.existsSync(distDir)) {
@@ -362,10 +390,15 @@ app.use((err, _req, res, _next) => {
   res.status(status).json({ message });
 });
 
-mongoose
-  .connect(MONGODB_URI)
-  .then(() => app.listen(PORT, () => console.log(`API running on http://localhost:${PORT}`)))
-  .catch((error) => {
-    console.error("MongoDB connection failed:", error.message);
-    process.exit(1);
-  });
+const isDirectRun = import.meta.url === pathToFileURL(process.argv[1] || "").href;
+
+if (isDirectRun) {
+  connectDb()
+    .then(() => app.listen(PORT, () => console.log(`API running on http://localhost:${PORT}`)))
+    .catch((error) => {
+      console.error("MongoDB connection failed:", error.message);
+      process.exit(1);
+    });
+}
+
+export default app;
