@@ -26,44 +26,67 @@ const emptyLand = {
 const emptySeller = { name: "", phone: "", email: "", bio: "", rating: "5", photo_url: "" };
 const MAX_IMAGE_SIZE = 400 * 1024;
 const MIN_IMAGE_SIZE = 200 * 1024;
+const START_MAX_SIDE = 1800;
+const MIN_MAX_SIDE = 320;
 
 const canvasToBlob = (canvas: HTMLCanvasElement, quality: number) =>
   new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/webp", quality));
 
-const compressImage = async (file: File) => {
-  if (file.size <= MAX_IMAGE_SIZE && file.type === "image/webp") return file;
-
-  const imageUrl = URL.createObjectURL(file);
-  const image = new Image();
-  image.src = imageUrl;
-  await image.decode();
-  URL.revokeObjectURL(imageUrl);
-
-  const maxSide = 1600;
+const renderImageToCanvas = (image: HTMLImageElement, maxSide: number) => {
   const scale = Math.min(1, maxSide / Math.max(image.width, image.height));
   const canvas = document.createElement("canvas");
   canvas.width = Math.max(1, Math.round(image.width * scale));
   canvas.height = Math.max(1, Math.round(image.height * scale));
 
   const context = canvas.getContext("2d");
-  if (!context) return file;
+  if (!context) return null;
   context.drawImage(image, 0, 0, canvas.width, canvas.height);
+  return canvas;
+};
 
-  let bestBlob = await canvasToBlob(canvas, 0.86);
-  let low = 0.55;
-  let high = 0.9;
+const bestBlobForCanvas = async (canvas: HTMLCanvasElement) => {
+  let bestBlob: Blob | null = null;
+  let low = 0.2;
+  let high = 0.95;
 
-  for (let i = 0; i < 7; i += 1) {
+  for (let i = 0; i < 10; i += 1) {
     const quality = (low + high) / 2;
     const blob = await canvasToBlob(canvas, quality);
     if (!blob) continue;
-    bestBlob = blob;
+
+    if (blob.size <= MAX_IMAGE_SIZE) bestBlob = blob;
     if (blob.size > MAX_IMAGE_SIZE) high = quality;
-    else if (blob.size < MIN_IMAGE_SIZE && quality < 0.9) low = quality;
-    else break;
+    else if (blob.size < MIN_IMAGE_SIZE && quality < 0.95) low = quality;
+    else return blob;
   }
 
-  if (!bestBlob || bestBlob.size > file.size) return file;
+  return bestBlob;
+};
+
+const compressImage = async (file: File) => {
+  const imageUrl = URL.createObjectURL(file);
+  const image = new Image();
+  image.src = imageUrl;
+  await image.decode();
+  URL.revokeObjectURL(imageUrl);
+
+  let maxSide = START_MAX_SIDE;
+  let bestBlob: Blob | null = null;
+
+  while (maxSide >= MIN_MAX_SIDE) {
+    const canvas = renderImageToCanvas(image, maxSide);
+    if (!canvas) break;
+
+    const blob = await bestBlobForCanvas(canvas);
+    if (blob && blob.size <= MAX_IMAGE_SIZE) {
+      bestBlob = blob;
+      if (blob.size >= MIN_IMAGE_SIZE) break;
+    }
+
+    maxSide = Math.round(maxSide * 0.82);
+  }
+
+  if (!bestBlob) throw new Error("Could not compress image below 400KB");
 
   const filename = file.name.replace(/\.[^.]+$/, "") || "image";
   return new File([bestBlob], `${filename}.webp`, { type: "image/webp" });
