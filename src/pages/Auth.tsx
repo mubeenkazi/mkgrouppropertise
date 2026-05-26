@@ -75,9 +75,9 @@ const Auth = () => {
     <div className="min-h-screen bg-background">
       <Navbar />
       <section className="container flex items-center justify-center py-12">
-        <div className="w-full max-w-md rounded-2xl border border-border bg-card p-8 shadow-[var(--shadow-elegant)]">
+        <div className="w-full max-w-md rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-elegant)] sm:p-8">
           <div className="text-center">
-            <h1 className="text-3xl font-bold text-foreground">Welcome to MK Group Properties</h1>
+            <h1 className="text-2xl font-bold text-foreground sm:text-3xl">Welcome to MK Group Properties</h1>
             <p className="mt-1 text-muted-foreground">Log in or create an account</p>
           </div>
 
@@ -112,7 +112,7 @@ const Auth = () => {
                     <p className="text-xs text-muted-foreground mb-2">Enter your email to request a password reset.</p>
                     <Input id="f-email" type="email" value={forgotEmail} onChange={(e) => setForgotEmail(e.target.value)} placeholder="you@example.com" />
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex flex-col gap-2 sm:flex-row">
                     <Button type="submit" variant="brand" className="flex-1" disabled={busy}>Send request</Button>
                     <Button type="button" variant="outline" onClick={() => setForgotOpen(false)}>Cancel</Button>
                   </div>

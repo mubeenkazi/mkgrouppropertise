@@ -94,7 +94,7 @@ const Index = () => {
         <div className="container relative z-10 flex min-h-[640px] flex-col justify-center py-20">
           <div className="max-w-2xl text-white">
             <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-sm backdrop-blur-md ring-1 ring-white/20">
-              <Shield className="h-3.5 w-3.5" /> Verified listings Â· Trusted sellers
+              <Shield className="h-3.5 w-3.5" /> Verified listings <span aria-hidden="true">&middot;</span> Trusted sellers
             </span>
             <h1 className="mt-6 text-4xl font-bold leading-tight tracking-tight sm:text-6xl">
               Find Your <span className="bg-[image:var(--gradient-gold)] bg-clip-text text-transparent">Dream Land</span>
@@ -120,7 +120,7 @@ const Index = () => {
 
       {/* FEATURED */}
       <section className="container py-20">
-        <div className="mb-10 flex items-end justify-between">
+        <div className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <span className="text-sm font-semibold uppercase tracking-wider text-primary">Featured</span>
             <h2 className="mt-2 text-3xl font-bold text-foreground sm:text-4xl">Handpicked Lands</h2>
@@ -131,7 +131,7 @@ const Index = () => {
           </Button>
         </div>
         {featured.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-border bg-card p-12 text-center text-muted-foreground">
+          <div className="rounded-xl border border-dashed border-border bg-card p-6 text-center text-muted-foreground sm:p-12">
             No lands listed yet. Check back soon.
           </div>
         ) : (
@@ -169,11 +169,11 @@ const Index = () => {
 
       {/* PROPERTY TYPES */}
       <section className="container pb-16">
-        <div className="rounded-2xl border border-border bg-card p-6 shadow-[var(--shadow-card)] md:p-8">
+        <div className="rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-card)] md:p-8">
           <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
             <div>
               <span className="text-sm font-semibold uppercase tracking-wider text-primary">Property Search</span>
-              <h2 className="mt-2 text-3xl font-bold text-foreground">Buy verified land and plots in India</h2>
+              <h2 className="mt-2 text-2xl font-bold text-foreground sm:text-3xl">Buy verified land and plots in India</h2>
               <p className="mt-3 text-muted-foreground">
                 Search land for sale in India by location, price and plot size. Our listings are built for buyers looking for residential plots, NA land, farmhouse plots, commercial land and long-term property investment opportunities.
               </p>
@@ -220,7 +220,7 @@ const Index = () => {
       {/* WHY BUY */}
       <section className="bg-secondary/50 py-20">
         <div className="container grid items-center gap-12 lg:grid-cols-2">
-          <img src={whyBuy} alt="Benefits of buying land" loading="lazy" width={1024} height={768} className="rounded-2xl shadow-[var(--shadow-elegant)]" />
+          <img src={whyBuy} alt="Benefits of buying land" loading="lazy" width={1024} height={768} className="w-full rounded-2xl shadow-[var(--shadow-elegant)]" />
           <div>
             <span className="text-sm font-semibold uppercase tracking-wider text-primary">Why buy land</span>
             <h2 className="mt-2 text-3xl font-bold text-foreground sm:text-4xl">A smart, tangible investment</h2>
@@ -299,7 +299,7 @@ const Index = () => {
 
       {/* CTA */}
       <section className="container py-20">
-        <div className="overflow-hidden rounded-2xl bg-[image:var(--gradient-hero)] p-10 text-primary-foreground shadow-[var(--shadow-elegant)] md:p-16">
+        <div className="overflow-hidden rounded-2xl bg-[image:var(--gradient-hero)] p-6 text-primary-foreground shadow-[var(--shadow-elegant)] sm:p-10 md:p-16">
           <div className="max-w-2xl">
             <h2 className="text-3xl font-bold sm:text-4xl">Ready to find your piece of land?</h2>
             <p className="mt-3 text-primary-foreground/90">Browse verified listings and talk to trusted sellers today.</p>

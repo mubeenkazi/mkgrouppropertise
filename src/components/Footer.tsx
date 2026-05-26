@@ -6,9 +6,9 @@ const Footer = () => (
   <footer className="mt-20 border-t border-border bg-card">
     <div className="container grid gap-10 py-14 md:grid-cols-4">
       <div>
-        <div className="flex items-center gap-2 text-primary">
+        <div className="flex min-w-0 items-center gap-2 text-primary">
           <img src={logo} alt="MK Group Properties logo" className="h-10 w-10 rounded-full object-contain" />
-          <span className="text-xl font-bold">MK Group Properties</span>
+          <span className="text-lg font-bold sm:text-xl">MK Group Properties</span>
         </div>
         <p className="mt-3 text-sm text-muted-foreground">
           Discover verified land, plots and investment opportunities across India.
@@ -26,9 +26,9 @@ const Footer = () => (
       <div>
         <h3 className="text-sm font-semibold text-foreground">Contact</h3>
         <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
-          <li className="flex items-center gap-2"><Phone className="h-4 w-4" /> +91 9921552486</li>
-          <li className="flex items-center gap-2"><Mail className="h-4 w-4" /> Mubeenkazi.mk@gmail.com</li>
-          <li className="flex items-center gap-2"><MapPin className="h-4 w-4" /> Maharashtra, Dapoli 415712, India</li>
+          <li className="flex items-center gap-2"><Phone className="h-4 w-4 shrink-0" /> <span>+91 9921552486</span></li>
+          <li className="flex items-center gap-2"><Mail className="h-4 w-4 shrink-0" /> <span className="break-all">Mubeenkazi.mk@gmail.com</span></li>
+          <li className="flex items-center gap-2"><MapPin className="h-4 w-4 shrink-0" /> <span>Maharashtra, Dapoli 415712, India</span></li>
         </ul>
       </div>
       <div>

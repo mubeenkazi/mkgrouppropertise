@@ -39,9 +39,9 @@ const Navbar = () => {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/80 backdrop-blur-xl">
       <div className="container flex h-16 items-center justify-between">
-        <Link to="/" className="flex items-center gap-2 text-primary">
+        <Link to="/" className="flex min-w-0 items-center gap-2 text-primary">
           <img src={logo} alt="MK Group Properties logo" className="h-10 w-10 rounded-full object-contain" />
-          <span className="text-xl font-bold tracking-tight">MK Group Properties</span>
+          <span className="truncate text-lg font-bold tracking-tight sm:text-xl">MK Group Properties</span>
         </Link>
 
         <nav className="hidden md:flex items-center gap-1">

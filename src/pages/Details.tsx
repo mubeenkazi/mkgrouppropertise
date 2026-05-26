@@ -250,14 +250,14 @@ const Details = () => {
                 </div>
                 <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">Verified info</span>
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid gap-3 sm:grid-cols-2">
                 {plotHighlights.map(({ icon: Icon, label, value }) => (
                   <div key={label} className="rounded-xl border border-border bg-background p-4">
                     <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
                       <Icon className="h-4 w-4 text-primary" />
                       {label}
                     </div>
-                    <p className="mt-2 text-lg font-bold text-foreground">{value}</p>
+                    <p className="mt-2 break-words text-base font-bold text-foreground sm:text-lg">{value}</p>
                   </div>
                 ))}
               </div>
@@ -341,7 +341,7 @@ const Details = () => {
                 </div>
                 <div className="mt-4 space-y-2 text-sm">
                   {seller.phone && <p className="flex items-center gap-2"><Phone className="h-4 w-4 text-primary" />{seller.phone}</p>}
-                  {seller.email && <p className="flex items-center gap-2"><Mail className="h-4 w-4 text-primary" />{seller.email}</p>}
+                  {seller.email && <p className="flex items-center gap-2"><Mail className="h-4 w-4 shrink-0 text-primary" /><span className="break-all">{seller.email}</span></p>}
                 </div>
                 {user ? (
                   seller.phone && (

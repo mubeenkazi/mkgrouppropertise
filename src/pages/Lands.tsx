@@ -45,7 +45,7 @@ const Lands = () => {
       <Navbar />
       <section className="container py-10">
         <header className="mb-6">
-          <h1 className="text-4xl font-bold text-foreground">Lands &amp; Properties</h1>
+          <h1 className="text-3xl font-bold text-foreground sm:text-4xl">Lands &amp; Properties</h1>
           <p className="mt-2 text-muted-foreground">Search by city, area, nearby place, price or plot size to find the right land.</p>
         </header>
         <SearchBar filters={filters} onChange={setFilters} onSubmit={onSubmit} />
@@ -57,7 +57,7 @@ const Lands = () => {
             ))}
           </div>
         ) : lands.length === 0 ? (
-          <div className="mt-16 rounded-xl border border-dashed border-border bg-card p-12 text-center text-muted-foreground">
+          <div className="mt-16 rounded-xl border border-dashed border-border bg-card p-6 text-center text-muted-foreground sm:p-12">
             No lands match your filters. Try adjusting your search.
           </div>
         ) : (

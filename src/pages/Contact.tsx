@@ -58,7 +58,7 @@ const Contact = () => {
       <Navbar />
       <section className="container py-12">
         <div className="mx-auto max-w-2xl text-center">
-          <h1 className="text-4xl font-bold text-foreground">Get in touch</h1>
+          <h1 className="text-3xl font-bold text-foreground sm:text-4xl">Get in touch</h1>
           <p className="mt-2 text-muted-foreground">We'd love to hear from you. Reach out for inquiries or site visits.</p>
         </div>
 
@@ -71,15 +71,15 @@ const Contact = () => {
             ].map(({ icon: Icon, title, value }) => (
               <div key={title} className="flex gap-4 rounded-xl border border-border bg-card p-5 shadow-[var(--shadow-card)]">
                 <Icon className="h-6 w-6 shrink-0 text-primary" />
-                <div>
+                <div className="min-w-0">
                   <p className="font-semibold text-foreground">{title}</p>
-                  <p className="text-muted-foreground">{value}</p>
+                  <p className="break-words text-muted-foreground">{value}</p>
                 </div>
               </div>
             ))}
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4 rounded-xl border border-border bg-card p-6 shadow-[var(--shadow-card)]">
+          <form onSubmit={handleSubmit} className="space-y-4 rounded-xl border border-border bg-card p-5 shadow-[var(--shadow-card)] sm:p-6">
             <div>
               <Label htmlFor="name">Name</Label>
               <Input id="name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} maxLength={100} />

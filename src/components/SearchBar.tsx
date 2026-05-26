@@ -57,7 +57,7 @@ const SearchBar = ({
             <SlidersHorizontal className="h-4 w-4" /> Filters
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-80 space-y-4" align="end">
+        <PopoverContent className="w-[calc(100vw-2rem)] max-w-80 space-y-4" align="center">
           <div className="grid grid-cols-2 gap-3">
             <div>
               <Label className="text-xs">Min price (₹)</Label>

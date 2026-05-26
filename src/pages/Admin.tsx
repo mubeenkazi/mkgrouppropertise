@@ -270,11 +270,11 @@ const Admin = () => {
     <div className="min-h-screen bg-background">
       <Navbar />
       <section className="container py-10">
-        <h1 className="text-4xl font-bold text-foreground">Admin dashboard</h1>
+        <h1 className="text-3xl font-bold text-foreground sm:text-4xl">Admin dashboard</h1>
         <p className="mt-2 text-muted-foreground">Manage lands, sellers and featured listings.</p>
 
         <Tabs defaultValue="lands" className="mt-8">
-          <TabsList>
+          <TabsList className="grid w-full grid-cols-2 sm:inline-grid sm:w-auto">
             <TabsTrigger value="lands">Lands ({lands.length})</TabsTrigger>
             <TabsTrigger value="sellers">Sellers ({sellers.length})</TabsTrigger>
           </TabsList>
@@ -363,7 +363,7 @@ const Admin = () => {
                       </div>
                       <div className="sm:col-span-2">
                         <Label>Land image</Label>
-                        <div className="flex items-center gap-3">
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
                           <Input type="file" accept="image/*" disabled={uploading}
                             onChange={async (e) => {
                               const f = e.target.files?.[0]; if (!f) return;
@@ -454,14 +454,16 @@ const Admin = () => {
 
             <div className="grid gap-3">
               {lands.map((l) => (
-                <div key={l.id} className="flex items-center gap-4 rounded-xl border border-border bg-card p-4">
-                  <img src={l.image_url || "/placeholder.svg"} alt="" className="h-16 w-24 rounded object-cover" />
-                  <div className="flex-1">
+                <div key={l.id} className="flex flex-col gap-4 rounded-xl border border-border bg-card p-4 sm:flex-row sm:items-center">
+                  <img src={l.image_url || "/placeholder.svg"} alt="" className="h-40 w-full rounded object-cover sm:h-16 sm:w-24" />
+                  <div className="min-w-0 flex-1">
                     <div className="font-semibold text-foreground">{l.title} {l.featured && <span className="ml-1 text-xs text-[hsl(var(--gold))]">★ Featured</span>}</div>
-                    <div className="text-sm text-muted-foreground">{l.location} · {l.square_feet.toLocaleString()} sq ft · {formatPrice(Number(l.price))}</div>
+                    <div className="break-words text-sm text-muted-foreground">{l.location} · {l.square_feet.toLocaleString()} sq ft · {formatPrice(Number(l.price))}</div>
                   </div>
-                  <Button size="sm" variant="outline" onClick={() => openEditLand(l)}><Pencil className="h-4 w-4" /></Button>
-                  <Button size="sm" variant="destructive" onClick={() => deleteLand(l.id)}><Trash2 className="h-4 w-4" /></Button>
+                  <div className="flex gap-2 self-end sm:self-auto">
+                    <Button size="sm" variant="outline" onClick={() => openEditLand(l)}><Pencil className="h-4 w-4" /></Button>
+                    <Button size="sm" variant="destructive" onClick={() => deleteLand(l.id)}><Trash2 className="h-4 w-4" /></Button>
+                  </div>
                 </div>
               ))}
               {lands.length === 0 && <p className="text-center text-muted-foreground py-8">No lands yet. Add your first listing.</p>}
@@ -504,7 +506,7 @@ const Admin = () => {
                     </div>
                     <div>
                       <Label>Seller photo</Label>
-                      <div className="flex items-center gap-3">
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
                         <Input type="file" accept="image/*" disabled={uploading}
                           onChange={async (e) => {
                             const f = e.target.files?.[0]; if (!f) return;
@@ -525,18 +527,20 @@ const Admin = () => {
 
             <div className="grid gap-3">
               {sellers.map((s) => (
-                <div key={s.id} className="flex items-center gap-4 rounded-xl border border-border bg-card p-4">
+                <div key={s.id} className="flex flex-col gap-4 rounded-xl border border-border bg-card p-4 sm:flex-row sm:items-center">
                   {s.photo_url ? (
                     <img src={s.photo_url} alt="" className="h-12 w-12 rounded-full object-cover" />
                   ) : (
                     <div className="h-12 w-12 rounded-full bg-secondary" />
                   )}
-                  <div className="flex-1">
+                  <div className="min-w-0 flex-1">
                     <div className="font-semibold text-foreground">{s.name}</div>
-                    <div className="text-sm text-muted-foreground">{s.email ?? "—"} · {s.phone ?? "—"}</div>
+                    <div className="break-words text-sm text-muted-foreground">{s.email ?? "—"} · {s.phone ?? "—"}</div>
                   </div>
-                  <Button size="sm" variant="outline" onClick={() => openEditSeller(s)}><Pencil className="h-4 w-4" /></Button>
-                  <Button size="sm" variant="destructive" onClick={() => deleteSeller(s.id)}><Trash2 className="h-4 w-4" /></Button>
+                  <div className="flex gap-2 self-end sm:self-auto">
+                    <Button size="sm" variant="outline" onClick={() => openEditSeller(s)}><Pencil className="h-4 w-4" /></Button>
+                    <Button size="sm" variant="destructive" onClick={() => deleteSeller(s.id)}><Trash2 className="h-4 w-4" /></Button>
+                  </div>
                 </div>
               ))}
               {sellers.length === 0 && <p className="text-center text-muted-foreground py-8">No sellers yet.</p>}
