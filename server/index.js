@@ -22,11 +22,19 @@ const PORT = process.env.PORT || 5000;
 const MONGODB_URI = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/mkgrup";
 const JWT_SECRET = process.env.JWT_SECRET || "change-this-secret-in-production";
 const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN || "http://localhost:8080";
-const hasBlobStorage = Boolean(process.env.BLOB_READ_WRITE_TOKEN);
+const allowedOrigins = CLIENT_ORIGIN.split(",").map((origin) => origin.trim()).filter(Boolean);
+const BLOB_TOKEN = process.env.BLOB_READ_WRITE_TOKEN;
+const hasBlobStorage = Boolean(BLOB_TOKEN);
 
 dns.setServers(["8.8.8.8", "8.8.4.4"]);
 
-app.use(cors({ origin: CLIENT_ORIGIN, credentials: true }));
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
+    callback(null, false);
+  },
+  credentials: true,
+}));
 app.use(express.json({ limit: "2mb" }));
 app.use(["/uploads", "/api/uploads"], express.static(uploadDir));
 
@@ -371,6 +379,7 @@ app.post("/api/uploads", requireAuth, requireAdmin, upload.single("file"), async
         access: "public",
         contentType: req.file.mimetype,
         addRandomSuffix: true,
+        token: BLOB_TOKEN,
       });
       return res.status(201).json({ url: blob.url });
     } catch (error) {
