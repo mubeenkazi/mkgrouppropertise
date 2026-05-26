@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Navigate } from "react-router-dom";
-import { Mail, MapPin, Phone } from "lucide-react";
+import { Facebook, Instagram, Mail, MapPin, Phone, Youtube } from "lucide-react";
 import { z } from "zod";
 import { toast } from "sonner";
 import Navbar from "@/components/Navbar";
@@ -17,6 +17,12 @@ const schema = z.object({
   email: z.string().trim().email("Invalid email").max(255),
   message: z.string().trim().min(10, "Message is too short").max(2000),
 });
+
+const socialLinks = [
+  { icon: Youtube, title: "YouTube", value: "@mkgroupproperties1443", href: "https://youtube.com/@mkgroupproperties1443?si=dVVg6gtxahCEMk5U" },
+  { icon: Facebook, title: "Facebook", value: "MK Group Properties", href: "https://www.facebook.com/share/1HGNTrHm3K/" },
+  { icon: Instagram, title: "Instagram", value: "@mubin.kazi.399", href: "https://www.instagram.com/mubin.kazi.399/" },
+];
 
 const Contact = () => {
   const { user, loading } = useAuth();
@@ -76,6 +82,21 @@ const Contact = () => {
                   <p className="break-words text-muted-foreground">{value}</p>
                 </div>
               </div>
+            ))}
+            {socialLinks.map(({ icon: Icon, title, value, href }) => (
+              <a
+                key={title}
+                href={href}
+                target="_blank"
+                rel="noreferrer"
+                className="flex gap-4 rounded-xl border border-border bg-card p-5 shadow-[var(--shadow-card)] transition hover:border-primary"
+              >
+                <Icon className="h-6 w-6 shrink-0 text-primary" />
+                <div className="min-w-0">
+                  <p className="font-semibold text-foreground">{title}</p>
+                  <p className="break-words text-muted-foreground">{value}</p>
+                </div>
+              </a>
             ))}
           </div>
 

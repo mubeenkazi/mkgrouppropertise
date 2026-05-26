@@ -1,6 +1,12 @@
-import { Mail, MapPin, Phone } from "lucide-react";
+import { Facebook, Instagram, Mail, MapPin, Phone, Youtube } from "lucide-react";
 import { Link } from "react-router-dom";
 import logo from "@/assets/logo.png";
+
+const socialLinks = [
+  { label: "YouTube", href: "https://youtube.com/@mkgroupproperties1443?si=dVVg6gtxahCEMk5U", icon: Youtube },
+  { label: "Facebook", href: "https://www.facebook.com/share/1HGNTrHm3K/", icon: Facebook },
+  { label: "Instagram", href: "https://www.instagram.com/mubin.kazi.399/", icon: Instagram },
+];
 
 const Footer = () => (
   <footer className="mt-20 border-t border-border bg-card">
@@ -36,6 +42,20 @@ const Footer = () => (
         <p className="mt-3 text-sm text-muted-foreground">
           Browse without an account; sign in to contact sellers.
         </p>
+        <div className="mt-4 flex flex-wrap gap-2">
+          {socialLinks.map(({ label, href, icon: Icon }) => (
+            <a
+              key={label}
+              href={href}
+              target="_blank"
+              rel="noreferrer"
+              aria-label={label}
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-background text-primary transition hover:border-primary hover:bg-primary hover:text-primary-foreground"
+            >
+              <Icon className="h-5 w-5" />
+            </a>
+          ))}
+        </div>
       </div>
     </div>
     <div className="border-t border-border py-6 text-center text-sm text-muted-foreground">
