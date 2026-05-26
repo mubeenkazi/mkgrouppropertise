@@ -109,27 +109,14 @@ const Details = () => {
   const contactPhone = seller?.phone || DEFAULT_CONTACT_PHONE;
   const contactEmail = seller?.email || DEFAULT_CONTACT_EMAIL;
   const pageUrl = getAbsoluteUrl(`/lands/${land.id}`);
-  const imageUrl = getAbsoluteUrl(land.image_url || land.gallery?.[0]);
   const productMessage = [
-    "Hello MK Group Properties,",
+    "Hello MK Group Properties, I am interested in this land.",
     "",
-    "I am interested in this land/property.",
+    `${land.title}`,
+    `${land.location}`,
+    `${formatPrice(Number(land.price))} | ${land.square_feet.toLocaleString()} sq ft`,
     "",
-    "Property Details:",
-    `- Title: ${land.title}`,
-    `- Location: ${land.location}`,
-    `- Total Price: ${formatPrice(Number(land.price))}`,
-    `- Plot Area: ${land.square_feet.toLocaleString()} sq ft`,
-    `- Price per sq ft: ${formatPrice(pricePerSqft)}`,
-    land.road_distance ? `- Road Access: ${land.road_distance}` : "",
-    "",
-    imageUrl ? `Property Image Link:` : "",
-    imageUrl,
-    "",
-    `Property Details Link:`,
-    pageUrl,
-    "",
-    "Please contact me.",
+    `Details: ${pageUrl}`,
   ].filter(Boolean).join("\n");
   const whatsappUrl = `https://wa.me/${getWhatsappNumber(contactPhone)}?text=${encodeURIComponent(productMessage)}`;
   const emailSubject = `Land enquiry: ${land.title}`;
@@ -298,7 +285,7 @@ const Details = () => {
                 <p className="text-xs font-semibold uppercase tracking-wider text-primary">Contact for this property</p>
                 <h2 className="text-xl font-bold text-foreground">Send product details instantly</h2>
                 <p className="mt-2 text-sm text-muted-foreground">
-                  WhatsApp or email us with this land's image, price, location and page link already included.
+                  WhatsApp or email us with the land title, price, location and short page link already included.
                 </p>
               </div>
               <div className="grid gap-3 sm:grid-cols-2">
