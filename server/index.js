@@ -162,6 +162,7 @@ const getUploadPath = (url) => {
   return resolved.startsWith(uploadDir) ? resolved : null;
 };
 const deleteUploadedFile = async (url) => {
+  if (typeof url === "string" && url.startsWith("data:")) return;
   if (hasBlobStorage && typeof url === "string" && url.includes(".blob.vercel-storage.com/")) {
     await del(url);
     return;
@@ -373,6 +374,7 @@ app.post("/api/uploads", requireAuth, requireAdmin, upload.single("file"), async
   if (!req.file) return res.status(400).json({ message: "Image file is required" });
   const bucket = req.body.bucket === "seller-images" ? "seller-images" : "land-images";
   const safeName = req.file.originalname.replace(/[^a-zA-Z0-9._-]/g, "-");
+  const dataUrl = `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`;
   if (hasBlobStorage) {
     try {
       const blob = await put(`${bucket}/${Date.now()}-${safeName}`, req.file.buffer, {
@@ -384,9 +386,10 @@ app.post("/api/uploads", requireAuth, requireAdmin, upload.single("file"), async
       return res.status(201).json({ url: blob.url });
     } catch (error) {
       console.error("Blob upload failed:", error);
-      return res.status(500).json({ message: "Blob upload failed. Check BLOB_READ_WRITE_TOKEN in Vercel." });
+      return res.status(201).json({ url: dataUrl });
     }
   }
+  if (process.env.VERCEL) return res.status(201).json({ url: dataUrl });
   const filename = `${Date.now()}-${safeName}`;
   await fs.promises.writeFile(path.join(uploadDir, filename), req.file.buffer);
   res.status(201).json({ url: `/uploads/${filename}` });
