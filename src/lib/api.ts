@@ -32,6 +32,7 @@ export const api = async <T>(path: string, options: ApiOptions = {}): Promise<T>
   const res = await fetch(`/api${path}`, { ...options, headers });
   if (!res.ok) {
     const data = await res.json().catch(() => null);
+    if (res.status === 401) authStore.clear();
     throw new Error(data?.message || "Request failed");
   }
   if (res.status === 204) return undefined as T;

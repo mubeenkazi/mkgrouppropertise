@@ -368,7 +368,8 @@ const Admin = () => {
                             onChange={async (e) => {
                               const f = e.target.files?.[0]; if (!f) return;
                               const url = await uploadImage(f, "land-images");
-                              if (url) setLandForm({ ...landForm, image_url: url });
+                              if (url) setLandForm((current) => ({ ...current, image_url: url }));
+                              e.target.value = "";
                             }} />
                           {landForm.image_url && <img src={landForm.image_url} alt="" className="h-12 w-16 rounded object-cover" />}
                         </div>
@@ -508,7 +509,8 @@ const Admin = () => {
                           onChange={async (e) => {
                             const f = e.target.files?.[0]; if (!f) return;
                             const url = await uploadImage(f, "seller-images");
-                            if (url) setSellerForm({ ...sellerForm, photo_url: url });
+                            if (url) setSellerForm((current) => ({ ...current, photo_url: url }));
+                            e.target.value = "";
                           }} />
                         {sellerForm.photo_url && <img src={sellerForm.photo_url} alt="" className="h-12 w-12 rounded-full object-cover" />}
                       </div>

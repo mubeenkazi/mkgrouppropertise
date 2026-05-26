@@ -171,7 +171,12 @@ const requireAuth = asyncHandler(async (req, res, next) => {
   const header = req.headers.authorization || "";
   const token = header.startsWith("Bearer ") ? header.slice(7) : null;
   if (!token) return res.status(401).json({ message: "Authentication required" });
-  const payload = jwt.verify(token, JWT_SECRET);
+  let payload;
+  try {
+    payload = jwt.verify(token, JWT_SECRET);
+  } catch {
+    return res.status(401).json({ message: "Your session expired. Please log in again." });
+  }
   const user = await User.findById(payload.id);
   if (!user) return res.status(401).json({ message: "Invalid session" });
   req.user = user;
@@ -358,14 +363,20 @@ app.post("/api/contact-messages", requireAuth, asyncHandler(async (req, res) => 
 
 app.post("/api/uploads", requireAuth, requireAdmin, upload.single("file"), asyncHandler(async (req, res) => {
   if (!req.file) return res.status(400).json({ message: "Image file is required" });
+  const bucket = req.body.bucket === "seller-images" ? "seller-images" : "land-images";
   const safeName = req.file.originalname.replace(/[^a-zA-Z0-9._-]/g, "-");
   if (hasBlobStorage) {
-    const blob = await put(`uploads/${Date.now()}-${safeName}`, req.file.buffer, {
-      access: "public",
-      contentType: req.file.mimetype,
-      addRandomSuffix: true,
-    });
-    return res.status(201).json({ url: blob.url });
+    try {
+      const blob = await put(`${bucket}/${Date.now()}-${safeName}`, req.file.buffer, {
+        access: "public",
+        contentType: req.file.mimetype,
+        addRandomSuffix: true,
+      });
+      return res.status(201).json({ url: blob.url });
+    } catch (error) {
+      console.error("Blob upload failed:", error);
+      return res.status(500).json({ message: "Blob upload failed. Check BLOB_READ_WRITE_TOKEN in Vercel." });
+    }
   }
   const filename = `${Date.now()}-${safeName}`;
   await fs.promises.writeFile(path.join(uploadDir, filename), req.file.buffer);
