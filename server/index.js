@@ -129,6 +129,12 @@ const reviewSchema = new mongoose.Schema(
   commonSchemaOptions,
 );
 
+landSchema.index({ featured: -1, created_at: -1 });
+landSchema.index({ price: 1 });
+landSchema.index({ square_feet: 1 });
+landSchema.index({ location: 1 });
+reviewSchema.index({ land_id: 1, created_at: -1 });
+
 const contactMessageSchema = new mongoose.Schema(
   {
     user_id: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
@@ -155,6 +161,13 @@ const publicUser = (user) => ({
 
 const asyncHandler = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
 const escapeRegex = (value) => String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const publicLand = (land) => ({
+  ...land,
+  id: land._id.toString(),
+  price_per_sqft: land.square_feet ? land.price / land.square_feet : null,
+  seller_id: land.seller_id ? land.seller_id.toString() : null,
+  _id: undefined,
+});
 const getUploadPath = (url) => {
   if (!url || typeof url !== "string" || !url.startsWith("/uploads/")) return null;
   const filename = path.basename(url);
@@ -276,8 +289,12 @@ app.get("/api/lands", asyncHandler(async (req, res) => {
   if (req.query.maxSqft) filter.square_feet.$lte = Number(req.query.maxSqft);
   const limit = req.query.limit ? Number(req.query.limit) : 0;
   const query = Land.find(filter).sort({ featured: -1, created_at: -1 });
+  if (req.query.summary === "1") {
+    query.select("title image_url price square_feet location featured seller_id created_at");
+  }
   if (limit) query.limit(limit);
-  res.json(await query);
+  const lands = await query.lean();
+  res.json(lands.map(publicLand));
 }));
 
 app.post("/api/lands", requireAuth, requireAdmin, asyncHandler(async (req, res) => {

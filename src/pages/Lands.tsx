@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PropertyCard from "@/components/PropertyCard";
+import PropertyCardSkeleton from "@/components/PropertyCardSkeleton";
 import SearchBar, { SearchFilters } from "@/components/SearchBar";
 import { Land } from "@/types/db";
 import { api } from "@/lib/api";
@@ -24,6 +25,7 @@ const Lands = () => {
     setLoading(true);
     const p = new URLSearchParams();
     Object.entries(f).forEach(([k, v]) => { if (v) p.set(k, v); });
+    p.set("summary", "1");
     const data = await api<Land[]>(`/lands?${p.toString()}`, { auth: false });
     setLands(data ?? []);
     setLoading(false);
@@ -60,7 +62,7 @@ const Lands = () => {
         {loading ? (
           <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="aspect-[4/3] animate-pulse rounded-xl bg-muted" />
+              <PropertyCardSkeleton key={i} />
             ))}
           </div>
         ) : lands.length === 0 ? (

@@ -4,6 +4,7 @@ import { ArrowRight, CheckCircle2, FileCheck2, Handshake, Home, MapPin, Shield, 
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PropertyCard from "@/components/PropertyCard";
+import PropertyCardSkeleton from "@/components/PropertyCardSkeleton";
 import SearchBar, { SearchFilters, emptyFilters } from "@/components/SearchBar";
 import Rating from "@/components/Rating";
 import { Button } from "@/components/ui/button";
@@ -58,10 +59,25 @@ const propertyTypes = [
 const Index = () => {
   const [filters, setFilters] = useState<SearchFilters>(emptyFilters);
   const [featured, setFeatured] = useState<Land[]>([]);
+  const [featuredLoading, setFeaturedLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-    api<Land[]>("/lands?limit=6", { auth: false }).then((data) => setFeatured(data ?? []));
+    let cancelled = false;
+    api<Land[]>("/lands?limit=6&summary=1", { auth: false })
+      .then((data) => {
+        if (!cancelled) setFeatured(data ?? []);
+      })
+      .catch(() => {
+        if (!cancelled) setFeatured([]);
+      })
+      .finally(() => {
+        if (!cancelled) setFeaturedLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const submitSearch = () => {
@@ -127,7 +143,13 @@ const Index = () => {
             <Link to="/lands">View all <ArrowRight className="ml-1 h-4 w-4" /></Link>
           </Button>
         </div>
-        {featured.length === 0 ? (
+        {featuredLoading ? (
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <PropertyCardSkeleton key={i} />
+            ))}
+          </div>
+        ) : featured.length === 0 ? (
           <div className="rounded-xl border border-dashed border-border bg-card p-6 text-center text-muted-foreground sm:p-12">
             No lands listed yet. Check back soon.
           </div>
